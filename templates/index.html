@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>원보카헬퍼</title>
+    <style>
+        @font-face {
+            font-family: 'DungGeunMo';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'GmarketSansMedium';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Cafe24Meongi-W-v1.0';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2405-3@1.1/Cafe24Meongi-W-v1.0.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'GmarketSansMedium', sans-serif;
+            background: linear-gradient(135deg, #fff0f5, #e0f7fa);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem; /* 간격 넓히기 */
+        }
+
+        header {
+            text-align: center;
+            /* animation: bounce 2s infinite; 애니메이션 제거 */
+        }
+
+        /* 타이틀 설정 - 쉽게 조절 가능한 상수들 */
+        :root {
+            --title-font-size: 2.8rem;
+            --title-letter-spacing: -0.05em;
+            --title-margin-bottom: 0.5rem;
+            
+            /* 통합된 스파클 애니메이션 변수 - 수정된 값 */
+            --sparkle-min-size: 80px;
+            --sparkle-max-size: 100px;
+            --sparkle-animation-duration: 2.5s;
+            --sparkle-min-opacity: 0.7;
+            --sparkle-max-opacity: 1;
+
+            /* 추가 공통 변수들 */
+            --primary: #ff6b9d;
+            --secondary: #ffcc00;
+            --text: #333;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --success: #4CAF50;
+        }
+        
+        h1 {
+            font-size: var(--title-font-size);
+            margin-bottom: var(--title-margin-bottom);
+            position: relative;
+            font-family: 'DungGeunMo', sans-serif;
+            letter-spacing: var(--title-letter-spacing);
+        }
+        
+        h1 span {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 8px 30px rgba(255, 107, 157, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(255, 107, 157, 0.5);
+        }
+
+        .drop-area {
+            border: 3px dashed var(--primary);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            background: rgba(255, 107, 157, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drop-area.active {
+            background: rgba(107, 255, 157, 0.2);
+            border-color: var(--secondary);
+        }
+
+        .drop-area h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .drop-area p {
+            color: #888;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 3rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.5);
+            margin: 0 0.5rem;
+            font-family: 'GmarketSansMedium', sans-serif;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.7);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.7);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-container {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 1rem;
+            box-shadow: 0 5px 20px rgba(255, 107, 157, 0.3);
+        }
+
+        .result-container {
+            display: none;
+        }
+
+        .result-card {
+            margin-top: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 107, 157, 0.3);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 107, 157, 0.3);
+            border-right: 1px solid rgba(255, 107, 157, 0.3);
+        }
+        
+        th {
+            text-align: center;
+        }
+        
+        td:first-child {
+            text-align: center;
+        }
+        
+        th:last-child, td:last-child {
+            border-right: none;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 240, 245, 0.5);
+        }
+        th {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .download-btn {
+            background: var(--success);
+            box-shadow: 0 5px 15px rgba(6, 77, 7, 0.5);
+        }
+
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(255, 240, 245, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+        
+        .sparkle-container {
+            position: relative;
+            width: var(--sparkle-max-size);
+            height: var(--sparkle-max-size);
+            animation: sparkle-bounce var(--sparkle-animation-duration) infinite;
+            z-index: 3;
+            font-size: var(--sparkle-max-size);
+            line-height: 1;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        @keyframes sparkle-bounce {
+            0% { 
+                transform: scale(0.8); 
+                opacity: var(--sparkle-min-opacity); 
+            }
+            50% { 
+                transform: scale(1); 
+                opacity: var(--sparkle-max-opacity); 
+            }
+            100% { 
+                transform: scale(0.8); 
+                opacity: var(--sparkle-min-opacity); 
+            }
+        }
+
+        .loading-message {
+            color: var(--text);
+            font-size: 1.5rem;
+            margin-top: 10px;
+            opacity: 0.8;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 1;
+            filter: blur(0.5px); /* 약간의 블러 효과 */
+            box-shadow: 0 0 2px rgba(255, 255, 255, 0.8); /* 빛나는 효과 */
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 0.8; }
+        }
+
+        @keyframes moveRandom {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            25% { transform: translate(calc(var(--x) * 0.25), calc(var(--y) * 0.25)) rotate(45deg) scale(var(--scale, 1.2)); }
+            50% { transform: translate(calc(var(--x) * 0.5), calc(var(--y) * 0.5)) rotate(90deg) scale(var(--scale, 0.8)); }
+            75% { transform: translate(calc(var(--x) * 0.75), calc(var(--y) * 0.75)) rotate(135deg) scale(var(--scale, 1.1)); }
+            100% { transform: translate(var(--x), var(--y)) rotate(180deg) scale(1); opacity: 0; }
+        }
+
+        .success-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            display: none;
+        }
+
+        .confetti {
+            position: absolute;
+            animation: confetti-fall 4s ease-out forwards;
+            opacity: 0;
+            transform-origin: center center;
+        }
+
+        .confetti-rect {
+            width: 10px;
+            height: 25px;
+        }
+
+        .confetti-square {
+            width: 15px;
+            height: 15px;
+        }
+
+        .confetti-circle {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+
+        .confetti-triangle {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid;
+            background-color: transparent !important;
+        }
+
+        .confetti-star {
+            width: 0;
+            height: 0;
+            margin: 10px 0;
+            border-right: 20px solid transparent;
+            border-bottom: 14px solid;
+            border-left: 20px solid transparent;
+            transform: rotate(35deg);
+            background-color: transparent !important;
+        }
+
+        .confetti-star:before {
+            content: '';
+            position: absolute;
+            border-bottom: 16px solid;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            top: -9px;
+            left: -13px;
+            transform: rotate(-35deg);
+            background-color: transparent !important;
+        }
+
+        .confetti-star:after {
+            content: '';
+            position: absolute;
+            border-bottom: 14px solid;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            transform: rotate(-70deg);
+            top: 3px;
+            left: -21px;
+            background-color: transparent !important;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 1; }
+            20% { transform: translateY(20vh) translateX(calc(var(--move-x) * 0.2)) rotate(var(--rotate-deg)); opacity: 1; }
+            40% { transform: translateY(40vh) translateX(calc(var(--move-x) * 0.4)) rotate(calc(var(--rotate-deg) * 1.5)); opacity: 0.9; }
+            60% { transform: translateY(60vh) translateX(calc(var(--move-x) * 0.6)) rotate(calc(var(--rotate-deg) * 2.5)); opacity: 0.8; }
+            80% { transform: translateY(80vh) translateX(calc(var(--move-x) * 0.8)) rotate(calc(var(--rotate-deg) * 3.5)); opacity: 0.5; }
+            95% { opacity: 0.2; }
+            100% { transform: translateY(100vh) translateX(var(--move-x)) rotate(calc(var(--rotate-deg) * 4)); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span>원보카헬퍼</span></h1>
+            <p class="subtitle">이미지 속 단어를 추출하여 원보카에 쉽게 등록할 수 있어요</p>
+        </header>
+
+        <div class="card">
+            <div id="dropArea" class="drop-area">
+                <h3>시작하기</h3>
+                <p>이미지를 드래그하거나 버튼을 클릭해보세요</p>
+                <button id="uploadBtn" class="btn">🎨 이미지 선택하기</button>
+                <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.heic">
+                <div id="previewContainer" class="preview-container">
+                    <img id="previewImage" class="preview-image" src="#" alt="미리보기">
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button id="extractBtn" class="btn">🌟 단어 추출하기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultContainer" class="result-container card">
+            <h3>🎉 추출이 완료되었어요</h3>
+            <div class="result-card">
+                <table id="resultTable">
+                    <thead>
+                        <tr><th>No</th><th>영어</th><th>의미</th></tr>
+                    </thead>
+                    <tbody id="resultBody"></tbody>
+                </table>
+            </div>
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button id="downloadBtn" class="btn download-btn">파일 다운로드 ⬇️</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loadingContainer" class="loading-container">
+        <div class="sparkle-container">✨</div>
+        <div id="loadingText" class="loading-message">단어장 제작을 시작했어요</div>
+    </div>
+
+    <div id="successAnimation" class="success-animation"></div>
+
+    <script>
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const extractBtn = document.getElementById('extractBtn');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultBody = document.getElementById('resultBody');
+        const loadingContainer = document.getElementById('loadingContainer');
+        const loadingText = document.getElementById('loadingText');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const successAnimation = document.getElementById('successAnimation');
+        
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+        extractBtn.addEventListener('click', extractWords);
+        downloadBtn.addEventListener('click', downloadCSV);
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => {
+                dropArea.classList.add('active');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => {
+                dropArea.classList.remove('active');
+            }, false);
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                fileInput.files = files;
+                handleFiles(files);
+            }
+        }, false);
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length) {
+                handleFiles(files);
+            }
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                const fileExt = file.name.split('.').pop().toLowerCase();
+                
+                if (!['jpg', 'jpeg', 'png', 'heic'].includes(fileExt)) {
+                    alert('jpg, jpeg, png, heic 파일만 업로드 가능해요.');
+                    return;
+                }
+                
+                if (fileExt === 'heic') {
+                    // HEIC 파일 처리
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+                    script.onload = function() {
+                        heic2any({
+                            blob: file,
+                            toType: 'image/jpeg',
+                            quality: 0.8
+                        }).then(function(convertedBlob) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                previewImage.src = e.target.result;
+                                previewContainer.style.display = 'block';
+                                const uploadTitle = dropArea.querySelector('h3');
+                                const uploadDesc = dropArea.querySelector('p');
+                                if (uploadTitle) uploadTitle.style.display = 'none';
+                                if (uploadDesc) uploadDesc.style.display = 'none';
+                                const buttonContainer = document.querySelector('#previewContainer > div');
+                                buttonContainer.prepend(uploadBtn);
+                                uploadBtn.style.marginBottom = '1rem';
+                            };
+                            reader.readAsDataURL(convertedBlob);
+                        }).catch(function(err) {
+                            console.error(err);
+                            alert('HEIC 파일 변환 중 오류가 발생했습니다.');
+                        });
+                    };
+                    script.onerror = function() {
+                        alert('HEIC 변환 라이브러리를 로드하는데 실패했습니다.');
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    // 일반 이미지 파일 처리
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        previewContainer.style.display = 'block';
+                        const uploadTitle = dropArea.querySelector('h3');
+                        const uploadDesc = dropArea.querySelector('p');
+                        if (uploadTitle) uploadTitle.style.display = 'none';
+                        if (uploadDesc) uploadDesc.style.display = 'none';
+                        const buttonContainer = document.querySelector('#previewContainer > div');
+                        buttonContainer.prepend(uploadBtn);
+                        uploadBtn.style.marginBottom = '1rem';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+
+        function extractWords() {
+            if (!fileInput.files.length) {
+                alert('이미지를 먼저 선택해주세요.');
+                return;
+            }
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            loadingContainer.style.display = 'flex';
+            createParticles(120);
+            const particleInterval = setInterval(() => {
+                createParticles(PARTICLE_CONFIG.PARTICLES_PER_BATCH);
+            }, PARTICLE_CONFIG.PARTICLES_INTERVAL);
+
+            const messages = [
+                "이미지를 분석하는 중...",
+                "이미지를 분석하는 중...",
+                "이미지를 분석하는 중...",
+                "정확하게 추출하기 위해 고민하는 중...",
+                "빠르게 생성하기 위해 노력하는 중...",
+            ];
+
+            const msgInterval = setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * messages.length);
+                loadingText.textContent = messages[randomIndex];
+            }, 1500);
+
+            fetch('/generate', { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    clearInterval(particleInterval);
+                    clearInterval(msgInterval);
+                    loadingContainer.style.display = 'none';
+                    showSuccessAnimation();
+                    processResults(data.result);
+                })
+                .catch(error => {
+                    clearInterval(particleInterval);
+                    clearInterval(msgInterval);
+                    loadingContainer.style.display = 'none';
+                    alert('문제가 생겼어요: ' + error.message);
+                });
+        }
+
+        // 파티클 설정 - 쉽게 조절 가능한 상수들
+        const PARTICLE_CONFIG = {
+            // 파티클 개수 설정
+            PARTICLES_PER_BATCH: 15,  // 한 번에 생성되는 파티클 개수
+            PARTICLES_INTERVAL: 800,  // 파티클 생성 간격 (ms)
+            
+            // 크기 설정
+            MIN_SIZE: 1,          // 최소 크기 (px)
+            MAX_SIZE: 12,         // 최대 크기 (px)
+            SIZE_VARIATION: 0.7,  // 크기 변화 정도 (0-1, 1에 가까울수록 더 다양함)
+            
+            // 속도 설정
+            MIN_DURATION: 2.5,    // 최소 지속 시간 (초)
+            MAX_DURATION: 6.0,    // 최대 지속 시간 (초)
+            
+            // 이동 거리 설정
+            MIN_DISTANCE: 300,    // 최소 이동 거리 (px)
+            MAX_DISTANCE: 1200,   // 최대 이동 거리 (px)
+            
+            // 기타 설정
+            FADE_IN_DURATION: 0.3, // 페이드인 시간 (초)
+            MAX_DELAY: 0.8,       // 최대 지연 시간 (초)
+            
+            // 색상 설정
+            COLORS: [
+                'rgba(255, 107, 157, 0.8)', // 핑크
+                'rgba(255, 107, 157, 0.5)', // 반투명 핑크
+                'rgba(255, 182, 193, 0.7)', // 연한 핑크
+                'rgba(255, 204, 0, 0.7)',   // 노란색
+                'rgba(255, 223, 128, 0.6)', // 연한 녀색
+                'rgba(255, 153, 102, 0.7)', // 살구색
+                'rgba(255, 182, 193, 0.4)'  // 매우 연한 핑크
+            ]
+        };
+        
+        function createParticles(number) {
+            const container = document.getElementById('loadingContainer');
+            
+            for (let i = 0; i < number; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // 랜덤 크기
+                const sizeVariation = Math.random() * PARTICLE_CONFIG.SIZE_VARIATION;
+                const size = PARTICLE_CONFIG.MIN_SIZE + Math.random() * 
+                             (PARTICLE_CONFIG.MAX_SIZE - PARTICLE_CONFIG.MIN_SIZE) * 
+                             (Math.random() < 0.3 ? 2 : 1); // 30% 확률로 더 큰 파티클
+                
+                // 크기에 따른 스케일 변화 애니메이션 설정
+                const scaleVariation = 0.7 + Math.random() * 0.6; // 0.7-1.3 사이의 랜덤 스케일 값
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // 랜덤 시작 위치 (화면 전체에 분산)
+                const startX = Math.random() * 100; // 0-100% 범위
+                const startY = Math.random() * 100; // 0-100% 범위
+                particle.style.left = `${startX}%`;
+                particle.style.top = `${startY}%`;
+                
+                // 랜덤 이동 거리
+                const distance = PARTICLE_CONFIG.MIN_DISTANCE + 
+                                Math.random() * (PARTICLE_CONFIG.MAX_DISTANCE - PARTICLE_CONFIG.MIN_DISTANCE);
+                const angle = Math.random() * Math.PI * 2; // 0-360도 랜덤 각도
+                const x = Math.cos(angle) * distance;
+                const y = Math.sin(angle) * distance;
+                
+                // 랜덤 색상 적용
+                const randomColor = PARTICLE_CONFIG.COLORS[Math.floor(Math.random() * PARTICLE_CONFIG.COLORS.length)];
+                particle.style.backgroundColor = randomColor;
+                
+                // 랜덤 애니메이션 속성
+                const duration = PARTICLE_CONFIG.MIN_DURATION + 
+                                Math.random() * (PARTICLE_CONFIG.MAX_DURATION - PARTICLE_CONFIG.MIN_DURATION);
+                const delay = Math.random() * PARTICLE_CONFIG.MAX_DELAY;
+                
+                // 더 자연스러운 움직임을 위한 베지어 곡선 값
+                const bezierX1 = 0.2 + Math.random() * 0.4; // 0.2-0.6 범위로 제한
+                const bezierY1 = 0.2 + Math.random() * 0.4;
+                const bezierX2 = 0.4 + Math.random() * 0.4; // 0.4-0.8 범위로 제한
+                const bezierY2 = 0.4 + Math.random() * 0.4;
+                
+                // 스케일 변화 적용
+                particle.style.setProperty('--scale', scaleVariation);
+                
+                particle.style.animation = `
+                    fadeIn ${PARTICLE_CONFIG.FADE_IN_DURATION}s ease ${delay}s forwards,
+                    moveRandom ${duration}s cubic-bezier(${bezierX1}, ${bezierY1}, ${bezierX2}, ${bezierY2}) ${delay}s forwards
+                `;
+                
+                particle.style.setProperty('--x', `${x}px`);
+                particle.style.setProperty('--y', `${y}px`);
+                
+                container.appendChild(particle);
+                
+                setTimeout(() => {
+                    particle.remove();
+                }, (duration + delay) * 1000);
+            }
+        }
+
+        function processResults(csvData) {
+            resultBody.innerHTML = '';
+            const rows = csvData.trim().split('\n');
+            const startIndex = rows[0].startsWith('No,T,D') ? 1 : 0;
+            for (let i = startIndex; i < rows.length; i++) {
+                const columns = rows[i].split(',');
+                if (columns.length >= 3) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${columns[0]}</td><td>${columns[1]}</td><td>${columns[2]}</td>`;
+                    resultBody.appendChild(row);
+                }
+            }
+            resultContainer.style.display = 'block';
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function downloadCSV() {
+            let csvContent = '\uFEFF';
+            csvContent += 'No,T,D,P,E\n';
+            const rows = resultBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                csvContent += `${cells[0].textContent},${cells[1].textContent},${cells[2].textContent},,\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', '단어장.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function showSuccessAnimation() {
+            successAnimation.style.display = 'block';
+            const rootStyle = getComputedStyle(document.documentElement);
+            
+            // 컨페티 설정 - 쉽게 조절 가능한 상수들
+            const CONFETTI_CONFIG = {
+                // 컨페티 개수 설정
+                COUNT: 120,           // 생성할 컨페티 총 개수
+                BATCH_SIZE: 60,       // 한 번에 생성되는 컨페티 개수
+                
+                // 크기 설정
+                MIN_SIZE: 5,          // 최소 크기 (px)
+                MAX_SIZE: 20,         // 최대 크기 (px)
+                SIZE_VARIATION: 0.5,  // 크기 변화 정도 (0-1, 1에 가까울수록 더 다양함)
+                
+                // 모양 설정
+                SHAPES: ['rect', 'square', 'circle', 'triangle', 'star'],  // 사용할 모양 종류
+                SHAPE_DISTRIBUTION: [30, 30, 15, 15, 10],                  // 각 모양의 확률 분포 (%)
+                
+                // 움직임 설정
+                MIN_FALL_DURATION: 1.5,   // 최소 낙하 시간 (초)
+                MAX_FALL_DURATION: 2.0,   // 최대 낙하 시간 (초)
+                MIN_MOVE_X: -100,       // 최소 X축 이동 거리 (px)
+                MAX_MOVE_X: 300,        // 최대 X축 이동 거리 (px)
+                MIN_ROTATION: 180,      // 최소 회전 각도 (도)
+                MAX_ROTATION: 450,      // 최대 회전 각도 (도)
+                
+                // 기타 설정
+                MAX_DELAY: 1.5,          // 최대 지연 시간 (초)
+                FADE_IN_DURATION: 0.5,  // 페이드인 시간 (초)
+                
+                // 색상 설정
+                COLORS: [
+                    rootStyle.getPropertyValue('--primary'),
+                    rootStyle.getPropertyValue('--secondary'),
+                    '#ffcc00',
+                    '#9d6bff',
+                    '#ff6b9d',
+                    '#ff9966',
+                    '#66ccff'
+                ]
+            };
+            
+            // 확률 분포에 따라 모양 선택하는 함수
+            function getRandomShape() {
+                const totalWeight = CONFETTI_CONFIG.SHAPE_DISTRIBUTION.reduce((a, b) => a + b, 0);
+                let random = Math.random() * totalWeight;
+                
+                for (let i = 0; i < CONFETTI_CONFIG.SHAPE_DISTRIBUTION.length; i++) {
+                    random -= CONFETTI_CONFIG.SHAPE_DISTRIBUTION[i];
+                    if (random <= 0) {
+                        return CONFETTI_CONFIG.SHAPES[i];
+                    }
+                }
+                return CONFETTI_CONFIG.SHAPES[0]; // 기본값
+            }
+            
+            // 컨페티를 배치 단위로 생성하여 성능 최적화
+            function createConfettiBatch(count) {
+                for (let i = 0; i < count; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    
+                    // 랜덤 모양 적용
+                    const shape = getRandomShape();
+                    confetti.classList.add(`confetti-${shape}`);
+                    
+                    // 랜덤 크기 적용 (더 다이나믹한 범위)
+                    const sizeVariation = Math.random() * CONFETTI_CONFIG.SIZE_VARIATION;
+                    const size = CONFETTI_CONFIG.MIN_SIZE + Math.random() * 
+                                (CONFETTI_CONFIG.MAX_SIZE - CONFETTI_CONFIG.MIN_SIZE) * 
+                                (Math.random() < 0.3 ? 1.5 : 1); // 30% 확률로 더 큰 컨페티
+                    
+                    if (shape === 'rect') {
+                        confetti.style.width = `${size * 0.4}px`;
+                        confetti.style.height = `${size}px`;
+                    } else if (shape !== 'triangle' && shape !== 'star') {
+                        confetti.style.width = `${size}px`;
+                        confetti.style.height = `${size}px`;
+                    }
+                    
+                    // 랜덤 위치 및 이동 설정 (더 자연스러운 분포)
+                    confetti.style.left = `${5 + Math.random() * 90}vw`; // 5%-95% 범위로 제한하여 화면 밖으로 나가는 것 방지
+                    confetti.style.top = '0';
+                    const moveX = CONFETTI_CONFIG.MIN_MOVE_X + Math.random() * (CONFETTI_CONFIG.MAX_MOVE_X - CONFETTI_CONFIG.MIN_MOVE_X);
+                    confetti.style.setProperty('--move-x', `${moveX}px`);
+                    
+                    // 랜덤 회전 설정 (더 자연스러운 회전)
+                    const rotateDeg = CONFETTI_CONFIG.MIN_ROTATION + Math.random() * (CONFETTI_CONFIG.MAX_ROTATION - CONFETTI_CONFIG.MIN_ROTATION);
+                    confetti.style.setProperty('--rotate-deg', `${rotateDeg}deg`);
+                    
+                    // 랜덤 색상 적용
+                    const color = CONFETTI_CONFIG.COLORS[Math.floor(Math.random() * CONFETTI_CONFIG.COLORS.length)];
+                    confetti.style.backgroundColor = color;
+                    if (shape === 'triangle' || shape === 'star') {
+                        confetti.style.borderBottomColor = color;
+                        if (shape === 'star') {
+                            const beforeAfter = document.createElement('style');
+                            beforeAfter.textContent = `.confetti-star:before, .confetti-star:after { border-bottom-color: ${color} !important; }`;
+                            document.head.appendChild(beforeAfter);
+                        }
+                    }
+                    
+                    // 랜덤 애니메이션 속성 (더 부드러운 움직임)
+                    const duration = CONFETTI_CONFIG.MIN_FALL_DURATION + Math.random() * (CONFETTI_CONFIG.MAX_FALL_DURATION - CONFETTI_CONFIG.MIN_FALL_DURATION);
+                    const delay = Math.random() * CONFETTI_CONFIG.MAX_DELAY;
+                    
+                    // 더 자연스러운 움직임을 위한 베지어 곡선 값 적용
+                    const bezierX1 = 0.2 + Math.random() * 0.3; // 0.2-0.5 범위로 제한
+                    const bezierY1 = 0.2 + Math.random() * 0.3;
+                    const bezierX2 = 0.5 + Math.random() * 0.3; // 0.5-0.8 범위로 제한
+                    const bezierY2 = 0.5 + Math.random() * 0.3;
+                    
+                    confetti.style.animation = `confetti-fall ${duration}s cubic-bezier(${bezierX1}, ${bezierY1}, ${bezierX2}, ${bezierY2}) ${delay}s forwards`;
+                    
+                    successAnimation.appendChild(confetti);
+                    
+                    // 메모리 관리를 위해 애니메이션 완료 후 요소 제거
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, (duration + delay) * 1000 + 500);
+                }
+            }
+            
+            // 초기 배치 생성
+            createConfettiBatch(CONFETTI_CONFIG.BATCH_SIZE);
+            
+            // 나머지 컨페티를 여러 배치로 나누어 생성
+            const remainingBatches = Math.ceil((CONFETTI_CONFIG.COUNT - CONFETTI_CONFIG.BATCH_SIZE) / CONFETTI_CONFIG.BATCH_SIZE);
+            let batchCount = 0;
+            
+            const batchInterval = setInterval(() => {
+                batchCount++;
+                if (batchCount >= remainingBatches) {
+                    clearInterval(batchInterval);
+                } else {
+                    createConfettiBatch(CONFETTI_CONFIG.BATCH_SIZE);
+                }
+            }, 300); // 300ms 간격으로 배치 생성
+            
+            setTimeout(() => {
+                successAnimation.innerHTML = '';
+                successAnimation.style.display = 'none';
+            }, (CONFETTI_CONFIG.MAX_FALL_DURATION + CONFETTI_CONFIG.MAX_DELAY) * 1000 + 1000);
+        }
+    </script>
+    <footer style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; font-family: 'Cafe24Meongi-W-v1.0', sans-serif;">
+        <a href="https://github.com/sleepysoong" style="color: var(--primary); text-decoration: none; font-size: 1.1rem;">@sleepysoong</a>
+    </footer>
+</body>
+</html>
